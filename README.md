@@ -53,7 +53,7 @@ In Imager settings, configure:
 ### 2. Clone This Repository
 SSH into your Pi and clone this repo:
 ```bash
-git clone https://github.com/mattbuckley80/rfoutlet-pi.git ~/rfoutlet-pi
+git clone https://github.com/YOURUSERNAME/rfoutlet-pi.git ~/rfoutlet-pi
 ```
 
 ### 3. Run the Installer

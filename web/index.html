@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>RF Outlets</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #1a1a1a; }
+    .wrap { padding: 1rem; max-width: 720px; margin: 0 auto; font-family: sans-serif; }
+    .outlet-block { background: #242424; border: 0.5px solid #333; border-radius: 16px; padding: 1rem; margin-bottom: 0.75rem; }
+    .outlet-block.all-block { background: #1e2a24; border-color: #1d9e75; }
+    .outlet-header { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 0.75rem; }
+    .outlet-name { font-size: 15px; font-weight: 500; color: #ffffff; }
+    .all-block .outlet-name { color: #5dcaa5; }
+    .outlet-status { font-size: 12px; color: #888; background: #333; border-radius: 6px; padding: 2px 10px; }
+    .outlet-status.on { color: #5dcaa5; background: #1e2a24; }
+    .outlet-status.off { color: #e24b4a; background: #2e2020; }
+    .btn-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn-on, .btn-off { border: none; border-radius: 10px; font-size: 20px; font-weight: 500; padding: 20px 0; cursor: pointer; transition: opacity 0.15s, transform 0.1s; font-family: inherit; width: 100%; }
+    .btn-on { background: #2a3d30; color: #5dcaa5; border: 0.5px solid #1d9e75; }
+    .btn-off { background: #2e2020; color: #888; border: 0.5px solid #444; }
+    .btn-on:active, .btn-off:active { transform: scale(0.97); opacity: 0.85; }
+    .btn-on.active { background: #1d9e75; color: #e1f5ee; border-color: #5dcaa5; }
+    .btn-off.active { background: #a32d2d; color: #fcebeb; border-color: #e24b4a; }
+    .divider { height: 0.5px; background: #333; margin: 0.25rem 0 1rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div id="outlets"></div>
+
+    <div class="divider"></div>
+
+    <div class="outlet-block all-block">
+      <div class="outlet-header">
+        <div class="outlet-name">All Outlets</div>
+        <div class="outlet-status" id="status-6">–</div>
+      </div>
+      <div class="btn-pair">
+        <button class="btn-on toggleOutlet" data-outletid="6" data-outletstatus="on">On</button>
+        <button class="btn-off toggleOutlet" data-outletid="6" data-outletstatus="off">Off</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Edit outlet names here when ready
+    const outlets = [
+      { id: '1', name: 'Outlet 1' },
+      { id: '2', name: 'Outlet 2' },
+      { id: '3', name: 'Outlet 3' },
+      { id: '4', name: 'Outlet 4' },
+      { id: '5', name: 'Outlet 5' },
+    ];
+
+    const container = document.getElementById('outlets');
+
+    outlets.forEach(o => {
+      const block = document.createElement('div');
+      block.className = 'outlet-block';
+      block.id = 'row-' + o.id;
+      block.innerHTML = `
+        <div class="outlet-header">
+          <div class="outlet-name">${o.name}</div>
+          <div class="outlet-status" id="status-${o.id}">–</div>
+        </div>
+        <div class="btn-pair">
+          <button class="btn-on toggleOutlet" data-outletid="${o.id}" data-outletstatus="on">On</button>
+          <button class="btn-off toggleOutlet" data-outletid="${o.id}" data-outletstatus="off">Off</button>
+        </div>`;
+      container.appendChild(block);
+    });
+
+    document.querySelectorAll('.toggleOutlet').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const id = this.dataset.outletid;
+        const status = this.dataset.outletstatus;
+
+        const row = document.getElementById('row-' + id);
+        if (row) {
+          row.querySelector('[data-outletstatus="on"]').classList.remove('active');
+          row.querySelector('[data-outletstatus="off"]').classList.remove('active');
+          this.classList.add('active');
+        }
+
+        const statusEl = document.getElementById('status-' + id);
+        if (statusEl) {
+          statusEl.textContent = status === 'on' ? 'On' : 'Off';
+          statusEl.className = 'outlet-status ' + status;
+        }
+
+        fetch('toggle.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: 'outletId=' + encodeURIComponent(id) + '&outletStatus=' + encodeURIComponent(status)
+        }).catch(err => console.log('Error:', err));
+      });
+    });
+  </script>
+</body>
+</html>
